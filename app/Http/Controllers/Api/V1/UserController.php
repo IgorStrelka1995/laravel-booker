@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreEmployeeRequest;
-use App\Http\Requests\UpdateEmployeeRequest;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
 use Illuminate\Http\Response;
@@ -92,14 +92,16 @@ class UserController extends Controller
      *     )
      * )
      *
-     * @param StoreEmployeeRequest $request
+     * @param StoreUserRequest $request
      * @return UserResource
      */
-    public function store(StoreEmployeeRequest $request)
+    public function store(StoreUserRequest $request)
     {
-        $user = User::create($request->all());
+        $data = $request->all();
 
-        return new UserResource($user);
+        $user = User::create($data);
+
+        return UserResource::make($user);
     }
 
     /**
@@ -176,13 +178,15 @@ class UserController extends Controller
      *     )
      * )
      *
-     * @param UpdateEmployeeRequest $request
+     * @param UpdateUserRequest $request
      * @param User $user
      * @return UserResource
      */
-    public function update(UpdateEmployeeRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->all());
+        $data = $request->all();
+
+        $user->update($data);
 
         return UserResource::make($user);
     }

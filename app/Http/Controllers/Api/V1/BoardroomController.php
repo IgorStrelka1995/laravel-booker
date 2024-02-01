@@ -49,6 +49,7 @@ class BoardroomController extends Controller
     {
         $boardrooms = QueryBuilder::for(Boardroom::class)
             ->allowedIncludes('events')
+            ->scopes('active')
             ->get()
         ;
 
@@ -97,7 +98,11 @@ class BoardroomController extends Controller
      */
     public function store(StoreBoardroomRequest $request)
     {
-        return new BoardroomResource(Boardroom::create($request->all()));
+        $data = $request->all();
+
+        $boardroom = Boardroom::create($data);
+
+        return BoardroomResource::make($boardroom);
     }
 
     /**
@@ -144,9 +149,11 @@ class BoardroomController extends Controller
      */
     public function update(UpdateBoardroomRequest $request, Boardroom $boardroom)
     {
-        $boardroom->update($request->all());
+        $data = $request->all();
 
-        return new BoardroomResource($boardroom);
+        $boardroom->update($data);
+
+        return BoardroomResource::make($boardroom);
     }
 
     /**

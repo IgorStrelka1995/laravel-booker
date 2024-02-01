@@ -120,7 +120,11 @@ class EventController extends Controller
      */
     public function store(StoreEventRequest $request)
     {
-        return new EventResource(Event::create($request->all()));
+        $data = $request->all();
+
+        $event = Event::create($data);
+
+        return EventResource::make($event);
     }
 
     /**
@@ -159,7 +163,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        return new EventResource($event);
+        return EventResource::make($event);
     }
 
     /**
@@ -220,9 +224,11 @@ class EventController extends Controller
      */
     public function update(UpdateEventRequest $request, Event $event)
     {
-        $event->update($request->all());
+        $data = $request->all();
 
-        return new EventResource($event);
+        $event->update($data);
+
+        return EventResource::make($event);
     }
 
     /**

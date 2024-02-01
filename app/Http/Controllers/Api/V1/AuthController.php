@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
         $data = $request->validate([
