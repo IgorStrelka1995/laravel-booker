@@ -38,26 +38,4 @@ class EventObserver
     {
         //
     }
-
-    /**
-     * Handle the Event "restored" event.
-     *
-     * @param  \App\Models\Event  $event
-     * @return void
-     */
-    public function restored(Event $event)
-    {
-        //
-    }
-
-    /**
-     * Handle the Event "force deleted" event.
-     *
-     * @param  \App\Models\Event  $event
-     * @return void
-     */
-    public function forceDeleted(Event $event)
-    {
-        //
-    }
 }

@@ -64,7 +64,6 @@ class EventController extends Controller
     public function index()
     {
         $events = QueryBuilder::for(Event::class)
-            ->allowedIncludes('events')
             ->paginate()
         ;
 

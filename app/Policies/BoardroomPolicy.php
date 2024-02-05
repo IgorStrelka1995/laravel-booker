@@ -22,18 +22,6 @@ class BoardroomPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Boardroom  $boardroom
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function view(User $user, Boardroom $boardroom)
-    {
-        return false;
-    }
-
-    /**
      * Determine whether the user can create models.
      *
      * @param  \App\Models\User  $user
@@ -66,29 +54,5 @@ class BoardroomPolicy
     public function delete(User $user, Boardroom $boardroom)
     {
         return $user->is_admin;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Boardroom  $boardroom
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Boardroom $boardroom)
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Boardroom  $boardroom
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Boardroom $boardroom)
-    {
-        return false;
     }
 }

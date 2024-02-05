@@ -15,6 +15,34 @@ abstract class TestCase extends BaseTestCase
 
     private Generator $faker;
 
+    protected static $customer = [
+        'name' => 'John',
+        'email' => 'john@mail.com',
+        'is_admin' => false
+    ];
+
+    protected static $customerTwo = [
+        'name' => 'Jack',
+        'email' => 'jack@mail.com',
+        'is_admin' => false
+    ];
+
+    protected static $admin = [
+        'name' => 'Admin',
+        'email' => 'admin@mail.com',
+        'is_admin' => true
+    ];
+
+    protected static $boardroomActive = [
+        'name' => 'Boardroom 1',
+        'active' => true
+    ];
+
+    protected static $boardroomDeactivated = [
+        'name' => 'Boardroom 2',
+        'active' => false
+    ];
+
     public function setUp(): void
     {
         parent::setUp();

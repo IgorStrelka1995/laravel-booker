@@ -12,42 +12,30 @@ use Tests\TestCase;
 
 class BoardroomControllerTest extends TestCase
 {
-    private static $customer = [
-        'name' => 'John',
-        'email' => 'john@mail.com',
-        'is_admin' => false
-    ];
-
-    private static $admin = [
-        'name' => 'Admin',
-        'email' => 'admin@mail.com',
-        'is_admin' => true
-    ];
-
     public function testGetAllBoardrooms()
     {
         // Unauthenticated
         $this->json('get', 'api/v1/boardroom')->assertStatus(Response::HTTP_UNAUTHORIZED);
 
-        $user = User::factory()->create(self::$customer);
+        $customer = User::factory()->create(self::$customer);
 
         // Unauthorized
-        $this->actingAs($user)->json('get', 'api/v1/boardroom')->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->actingAs($customer)->json('get', 'api/v1/boardroom')->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $user = User::factory()->create(self::$admin);
+        $admin = User::factory()->create(self::$admin);
 
-        Boardroom::factory()->create(['name' => 'Boardroom 1', 'active' => true]);
-        Boardroom::factory()->create(['name' => 'Boardroom 2', 'active' => false]);
+        $boardroomActive = Boardroom::factory()->create(self::$boardroomActive);
+        $boardroomDeactivated = Boardroom::factory()->create(self::$boardroomDeactivated);
 
-        $this->actingAs($user)
+        $this->actingAs($admin)
             ->json('get', 'api/v1/boardroom')
             ->assertStatus(Response::HTTP_OK)
             ->assertExactJson([
                 'data' => [
                     [
-                        'id' => 1,
-                        'name' => 'Boardroom 1',
-                        'active' => 1
+                        'id' => $boardroomActive->getAttribute('id'),
+                        'name' => $boardroomActive->getAttribute('name'),
+                        'active' => $boardroomActive->getAttribute('active')
                     ]
                 ]
             ]);
@@ -58,41 +46,41 @@ class BoardroomControllerTest extends TestCase
         // Unauthenticated
         $this->json('get', 'api/v1/boardroom')->assertStatus(Response::HTTP_UNAUTHORIZED);
 
-        $user = User::factory()->create(self::$customer);
+        $customer = User::factory()->create(self::$customer);
 
         // Unauthorized
-        $this->actingAs($user)->json('get', 'api/v1/boardroom')->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->actingAs($customer)->json('get', 'api/v1/boardroom')->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $user = User::factory()->create(self::$admin);
+        $admin = User::factory()->create(self::$admin);
 
-        Boardroom::factory()->create(['name' => 'Boardroom 1', 'active' => true]);
-        Boardroom::factory()->create(['name' => 'Boardroom 2', 'active' => false]);
+        $boardroomActive = Boardroom::factory()->create(self::$boardroomActive);
+        $boardroomDeactivated = Boardroom::factory()->create(self::$boardroomDeactivated);
 
-        Event::factory()->create([
+        $event = Event::factory()->create([
             "description" => "Event has been booked",
             "starttime" => "34934035",
             "endtime" => "34934036",
-            "boardroom_id" => "1",
-            "user_id" => "1"
+            "boardroom_id" => $boardroomActive->getAttribute('id'),
+            "user_id" => $admin->getAttribute('id')
         ]);
 
-        $this->actingAs($user)
+        $this->actingAs($admin)
             ->json('get', 'api/v1/boardroom?include=events')
             ->assertStatus(Response::HTTP_OK)
             ->assertExactJson([
                 'data' => [
                     [
-                        'id' => 1,
-                        'name' => 'Boardroom 1',
-                        'active' => 1,
+                        'id' => $boardroomActive->getAttribute('id'),
+                        'name' => $boardroomActive->getAttribute('name'),
+                        'active' => $boardroomActive->getAttribute('active'),
                         'events' => [
                             [
-                                "id" => 1,
-                                "description" => "Event has been booked",
-                                "starttime" => 34934035,
-                                "endtime" => 34934036,
-                                "boardroom_id" => 1,
-                                "user_id" => 1,
+                                "id" => $event->getAttribute('id'),
+                                "description" => $event->getAttribute('description'),
+                                "starttime" => (int)$event->getAttribute('starttime'),
+                                "endtime" => (int)$event->getAttribute('endtime'),
+                                "boardroom_id" => $event->getAttribute('boardroom_id'),
+                                "user_id" => $event->getAttribute('user_id'),
                             ]
                         ]
                     ]
@@ -102,81 +90,74 @@ class BoardroomControllerTest extends TestCase
 
     public function testCreateBoardroom()
     {
-        $boardroomData = ['name' => 'Boardroom 1', 'active' => true];
+        $boardroomData = self::$boardroomActive;
 
         // Unauthenticated
         $this->json('post', 'api/v1/boardroom', $boardroomData)->assertStatus(Response::HTTP_UNAUTHORIZED);
 
-        $user = User::factory()->create(self::$customer);
+        $customer = User::factory()->create(self::$customer);
 
         // Unauthorized
-        $this->actingAs($user)->json('post', 'api/v1/boardroom', $boardroomData)->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->actingAs($customer)->json('post', 'api/v1/boardroom', $boardroomData)->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $user = User::factory()->create(self::$admin);
+        $admin = User::factory()->create(self::$admin);
 
-        $this->actingAs($user)
+        $boardroomDataResponse = array_merge($boardroomData, ['id' => 1]);
+
+        $this->actingAs($admin)
             ->json('post', 'api/v1/boardroom', $boardroomData)
             ->assertStatus(Response::HTTP_CREATED)
-            ->assertExactJson([
-                'data' => [
-                    'id' => 1,
-                    'name' => 'Boardroom 1',
-                    'active' => true
-                ]
-            ])
+            ->assertExactJson(['data' => $boardroomDataResponse])
         ;
     }
 
     public function testUpdateBoardroom()
     {
-        $boardroomData = ['name' => 'Boardroom 1', 'active' => true];
+        $boardroomData = self::$boardroomActive;
 
-        Boardroom::factory()->create($boardroomData);
+        $boardroomActive = Boardroom::factory()->create($boardroomData);
 
         // Unauthenticated
         $this->json('put', 'api/v1/boardroom/1', $boardroomData)->assertStatus(Response::HTTP_UNAUTHORIZED);
 
-        $user = User::factory()->create(self::$customer);
+        $customer = User::factory()->create(self::$customer);
 
         // Unauthorized
-        $this->actingAs($user)->json('put', 'api/v1/boardroom/1', $boardroomData)->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->actingAs($customer)->json('put', 'api/v1/boardroom/1', $boardroomData)->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $user = User::factory()->create(self::$admin);
+        $admin = User::factory()->create(self::$admin);
 
         $boardroomDataUpdated = ['name' => 'Boardroom 1 (updated)', 'active' => true];
+        $boardroomDataUpdatedResponse = array_merge(['id' => 1], $boardroomDataUpdated);
 
-        $this->actingAs($user)
+        $this->actingAs($admin)
             ->json('put', 'api/v1/boardroom/1', $boardroomDataUpdated)
             ->assertStatus(Response::HTTP_OK)
             ->assertExactJson([
-                'data' => [
-                    'id' => 1,
-                    'name' => 'Boardroom 1 (updated)',
-                    'active' => true
-                ]
+                'data' => $boardroomDataUpdatedResponse
             ])
         ;
     }
 
     public function testDestroyBoardroom()
     {
-        $boardroomData = ['name' => 'Boardroom 1', 'active' => true];
+        $boardroomData = self::$boardroomActive;
 
         Boardroom::factory()->create($boardroomData);
 
         // Unauthenticated
         $this->json('delete', 'api/v1/boardroom/1', $boardroomData)->assertStatus(Response::HTTP_UNAUTHORIZED);
 
-        $user = User::factory()->create(self::$customer);
+        $customer = User::factory()->create(self::$customer);
 
         // Unauthorized
-        $this->actingAs($user)->json('delete', 'api/v1/boardroom/1', $boardroomData)->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->actingAs($customer)->json('delete', 'api/v1/boardroom/1', $boardroomData)->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $user = User::factory()->create(self::$admin);
+        $admin = User::factory()->create(self::$admin);
 
         $this->assertNotEmpty(Boardroom::all()->toArray());
 
-        $this->actingAs($user)
+        $this->actingAs($admin)
             ->json('delete', 'api/v1/boardroom/1')
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
